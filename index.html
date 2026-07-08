@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>河北工程技术学院 GPA 智能计算器</title>
     <link rel="icon" href="favicon.png" type="image/png">
-   <style>
+  <style>
         :root {
             --glass-bg: rgba(255, 255, 255, 0.45);
             --glass-border: rgba(255, 255, 255, 0.4);
@@ -782,7 +782,6 @@ select:focus {
 </div>
 
 <script>
-    // 修复拖动失效问题 - 使用更简单可靠的方法
     function manualAddCourse() {
     const nameInput = document.getElementById('newCourseName');
     const creditInput = document.getElementById('newCourseCredit');
@@ -812,6 +811,16 @@ select:focus {
         </td>
         <td>
             <div style="display: flex; gap: 8px; align-items: center;">
+                <button onclick="moveCourseUp(this); updateCourseCount(); coreCalcEngine();" 
+                        style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; background: rgba(255,255,255,0.5);" 
+                        title="上移">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 15 12 8 19 15"/></svg>
+                </button>
+                <button onclick="moveCourseDown(this); updateCourseCount(); coreCalcEngine();" 
+                        style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; background: rgba(255,255,255,0.5);" 
+                        title="下移">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 12 16 19 9"/></svg>
+                </button>
                 <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
                         style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
                     删除
@@ -819,9 +828,6 @@ select:focus {
             </div>
         </td>
     `;
-    
-    // 添加简单的拖动支持
-    makeRowDraggable(newRow);
     
     document.getElementById('innerTbody').appendChild(newRow);
     
@@ -832,101 +838,19 @@ select:focus {
     updateCourseCount();
 }
 
-    function makeRowDraggable(row) {
-        // 添加拖动类
-        row.classList.add('draggable-row');
-        
-        // 添加鼠标事件（桌面端）
-        row.addEventListener('mousedown', function(e) {
-            if (e.button === 0) {
-                e.preventDefault();
-                startSimpleDrag(this);
-            }
-        });
-        
-        // 添加触摸事件（移动端）
-        row.addEventListener('touchstart', function(e) {
-            if (e.touches.length === 1) {
-                e.preventDefault();
-                startSimpleDrag(this);
-            }
-        });
+    // 新增的课程排序函数
+    function moveCourseUp(button) {
+        const row = button.closest('tr');
+        if (row && row.previousElementSibling) {
+            row.parentNode.insertBefore(row, row.previousElementSibling);
+        }
     }
 
-    function startSimpleDrag(row) {
-        const tbody = row.parentNode;
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        const startIndex = rows.indexOf(row);
-        
-        // 创建拖动视觉效果
-        const dragClone = row.cloneNode(true);
-        dragClone.style.position = 'fixed';
-        dragClone.style.top = `${row.offsetTop}px`;
-        dragClone.style.left = `${row.offsetLeft}px`;
-        dragClone.style.width = `${row.offsetWidth}px`;
-        dragClone.style.opacity = '0.7';
-        dragClone.style.zIndex = '100';
-        dragClone.style.pointerEvents = 'none';
-        dragClone.style.border = '2px dashed #2563eb';
-        
-        document.body.appendChild(dragClone);
-        
-        // 移动事件处理
-        const moveHandler = function(e) {
-            let clientX, clientY;
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-            
-            dragClone.style.left = `${clientX - 20}px`;
-            dragClone.style.top = `${clientY - 20}px`;
-            
-            // 检查是否应该交换位置
-            const currentRows = Array.from(tbody.querySelectorAll('tr'));
-            const currentRow = currentRows.find(r => r === row);
-            if (!currentRow) return;
-            
-            const currentIndex = currentRows.indexOf(currentRow);
-            const targetIndex = Math.max(0, Math.min(currentRows.length - 1, 
-                Math.floor((clientY - tbody.getBoundingClientRect().top) / row.offsetHeight)));
-            
-            if (targetIndex !== currentIndex && targetIndex >= 0 && targetIndex < currentRows.length) {
-                if (targetIndex < currentIndex) {
-                    // 向上移动
-                    tbody.insertBefore(row, currentRows[targetIndex]);
-                } else {
-                    // 向下移动
-                    const nextRow = currentRows[targetIndex + 1];
-                    if (nextRow) {
-                        tbody.insertBefore(row, nextRow);
-                    } else {
-                        tbody.appendChild(row);
-                    }
-                }
-            }
-        };
-        
-        // 结束事件
-        const endHandler = function(e) {
-            document.body.removeChild(dragClone);
-            document.removeEventListener('touchmove', moveHandler);
-            document.removeEventListener('touchend', endHandler);
-            document.removeEventListener('mousemove', moveHandler);
-            document.removeEventListener('mouseup', endHandler);
-            
-            // 强制更新计数
-            updateCourseCount();
-        };
-        
-        // 绑定事件
-        document.addEventListener('touchmove', moveHandler);
-        document.addEventListener('touchend', endHandler);
-        document.addEventListener('mousemove', moveHandler);
-        document.addEventListener('mouseup', endHandler);
+    function moveCourseDown(button) {
+        const row = button.closest('tr');
+        if (row && row.nextElementSibling) {
+            row.parentNode.insertBefore(row.nextElementSibling, row);
+        }
     }
 
     const courseTemplates = {
@@ -1089,6 +1013,16 @@ function loadTemplateEngine() {
                 </td>
                 <td>
                     <div style="display: flex; gap: 8px; align-items: center;">
+                        <button onclick="moveCourseUp(this); updateCourseCount(); coreCalcEngine();" 
+                                style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; background: rgba(255,255,255,0.5);" 
+                                title="上移">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 15 12 8 19 15"/></svg>
+                        </button>
+                        <button onclick="moveCourseDown(this); updateCourseCount(); coreCalcEngine();" 
+                                style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; background: rgba(255,255,255,0.5);" 
+                                title="下移">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 12 16 19 9"/></svg>
+                        </button>
                         <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
                                 style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
                             删除
@@ -1101,15 +1035,6 @@ function loadTemplateEngine() {
 
     htmlBuffer += `</tbody></table>`;
     container.innerHTML = htmlBuffer;
-
-    // 为智能加载的课程添加拖动支持
-    const tbodyElement = document.getElementById('innerTbody');
-    if (tbodyElement) {
-        const rows = tbodyElement.querySelectorAll('tr');
-        rows.forEach(row => {
-            makeRowDraggable(row);
-        });
-    }
 
     document.getElementById('boardCount').innerText = `总修读课程数：${dataset.length} 门`;
     resetStatsDashboard();
@@ -1191,3 +1116,4 @@ function loadTemplateEngine() {
 </script>
 </body>
 </html>
+
