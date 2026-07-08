@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>河北工程技术学院 GPA 智能计算器</title>
     <link rel="icon" href="favicon.png" type="image/png">
-  <style>
+    <style>
         :root {
             --glass-bg: rgba(255, 255, 255, 0.45);
             --glass-border: rgba(255, 255, 255, 0.4);
@@ -871,25 +871,12 @@ select:focus {
             <input type="number" class="score-input" placeholder="0-100" min="0" max="100" step="0.1" 
                    oninput="coreCalcEngine()" data-credit="${parseFloat(creditInput.value)}">
         </td>
-      <!-- 在手动添加课程的tr中 -->
-<td>
-    <div class="operation-buttons">
-        <button onclick="moveCourseUp(this); updateCourseCount(); coreCalcEngine();" 
-                class="operation-btn" 
-                title="上移">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 15 12 8 19 15"/></svg>
-        </button>
-        <button onclick="moveCourseDown(this); updateCourseCount(); coreCalcEngine();" 
-                class="operation-btn" 
-                title="下移">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 12 16 19 9"/></svg>
-        </button>
-        <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
-                class="operation-btn delete-btn">
-            删除
-        </button>
-    </div>
-</td>   
+        <td>
+            <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
+                    style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
+                删除
+            </button>
+        </td>
     `;
     
     document.getElementById('innerTbody').appendChild(newRow);
@@ -900,21 +887,6 @@ select:focus {
     // 更新课程计数
     updateCourseCount();
 }
-
-    // 新增的课程排序函数
-    function moveCourseUp(button) {
-        const row = button.closest('tr');
-        if (row && row.previousElementSibling) {
-            row.parentNode.insertBefore(row, row.previousElementSibling);
-        }
-    }
-
-    function moveCourseDown(button) {
-        const row = button.closest('tr');
-        if (row && row.nextElementSibling) {
-            row.parentNode.insertBefore(row.nextElementSibling, row);
-        }
-    }
 
     const courseTemplates = {
         "ds_2025_1": [
@@ -1075,22 +1047,10 @@ function loadTemplateEngine() {
                            oninput="coreCalcEngine()" data-credit="${item.credit}">
                 </td>
                 <td>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <button onclick="moveCourseUp(this); updateCourseCount(); coreCalcEngine();" 
-                                style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; background: rgba(255,255,255,0.5);" 
-                                title="上移">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 15 12 8 19 15"/></svg>
-                        </button>
-                        <button onclick="moveCourseDown(this); updateCourseCount(); coreCalcEngine();" 
-                                style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; background: rgba(255,255,255,0.5);" 
-                                title="下移">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 12 16 19 9"/></svg>
-                        </button>
-                        <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
-                                style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
-                            删除
-                        </button>
-                    </div>
+                    <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
+                            style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
+                        删除
+                    </button>
                 </td>
             </tr>
         `;
