@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>河北工程技术学院 GPA 智能计算器</title>
     <link rel="icon" href="favicon.png" type="image/png">
-  <style>
+   <style>
         :root {
             --glass-bg: rgba(255, 255, 255, 0.45);
             --glass-border: rgba(255, 255, 255, 0.4);
@@ -646,10 +646,6 @@ select:focus {
         width: 100%;
     }
     
-    /* 移动端隐藏部分元素 */
-    .mimic-top-bar a:not(:first-child) {
-        display: none;
-    }
     
     /* 防止垂直拉长的关键设置 */
     .app-container {
@@ -786,12 +782,7 @@ select:focus {
 </div>
 
 <script>
-    // 修复手机端滑动与拖动冲突
-    let dragStartX = 0;
-    let dragStartY = 0;
-    let isDragging = false;
-    let draggedRow = null;
-
+    // 修复拖动失效问题 - 使用更简单可靠的方法
     function manualAddCourse() {
     const nameInput = document.getElementById('newCourseName');
     const creditInput = document.getElementById('newCourseCredit');
@@ -829,8 +820,8 @@ select:focus {
         </td>
     `;
     
-    // 添加智能拖动支持
-    addSmartDragSupport(newRow);
+    // 添加简单的拖动支持
+    makeRowDraggable(newRow);
     
     document.getElementById('innerTbody').appendChild(newRow);
     
@@ -841,126 +832,101 @@ select:focus {
     updateCourseCount();
 }
 
-    function addSmartDragSupport(row) {
-        // 触摸开始事件
-        row.addEventListener('touchstart', function(e) {
-            if (e.touches.length === 1) {
-                const touch = e.touches[0];
-                dragStartX = touch.clientX;
-                dragStartY = touch.clientY;
-                isDragging = false;
-                draggedRow = this;
-                
-                // 阻止默认行为，但允许后续判断
-                e.preventDefault();
-            }
-        });
+    function makeRowDraggable(row) {
+        // 添加拖动类
+        row.classList.add('draggable-row');
         
-        // 触摸移动事件 - 检测方向
-        row.addEventListener('touchmove', function(e) {
-            if (e.touches.length === 1 && draggedRow === this) {
-                const touch = e.touches[0];
-                const deltaX = Math.abs(touch.clientX - dragStartX);
-                const deltaY = Math.abs(touch.clientY - dragStartY);
-                
-                // 如果垂直移动距离大于水平移动距离，且超过阈值，则允许滑动
-                if (deltaY > deltaX && deltaY > 10) {
-                    // 这是垂直滑动，不启用拖动
-                    return;
-                }
-                
-                // 如果水平移动距离较大，启用拖动
-                if (deltaX > deltaY && deltaX > 10) {
-                    isDragging = true;
-                    // 阻止页面滚动
-                    e.preventDefault();
-                }
-            }
-        });
-        
-        // 触摸结束事件
-        row.addEventListener('touchend', function(e) {
-            if (isDragging && draggedRow === this) {
-                // 执行拖动逻辑
-                handleTouchDragEnd(this);
-                isDragging = false;
-                draggedRow = null;
-            }
-        });
-        
-        // 鼠标事件（桌面端）
+        // 添加鼠标事件（桌面端）
         row.addEventListener('mousedown', function(e) {
             if (e.button === 0) {
                 e.preventDefault();
-                dragStartX = e.clientX;
-                dragStartY = e.clientY;
-                isDragging = false;
-                draggedRow = this;
+                startSimpleDrag(this);
             }
         });
         
-        row.addEventListener('mousemove', function(e) {
-            if (draggedRow === this && !isDragging) {
-                const deltaX = Math.abs(e.clientX - dragStartX);
-                const deltaY = Math.abs(e.clientY - dragStartY);
-                
-                if (deltaX > deltaY && deltaX > 10) {
-                    isDragging = true;
-                    e.preventDefault();
-                }
-            }
-        });
-        
-        row.addEventListener('mouseup', function(e) {
-            if (isDragging && draggedRow === this) {
-                handleTouchDragEnd(this);
-                isDragging = false;
-                draggedRow = null;
+        // 添加触摸事件（移动端）
+        row.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 1) {
+                e.preventDefault();
+                startSimpleDrag(this);
             }
         });
     }
 
-    function handleTouchDragEnd(row) {
-        // 创建拖动视觉效果
+    function startSimpleDrag(row) {
         const tbody = row.parentNode;
         const rows = Array.from(tbody.querySelectorAll('tr'));
-        const currentIndex = rows.indexOf(row);
+        const startIndex = rows.indexOf(row);
         
-        // 简单的拖动排序：只允许在相邻位置移动
-        // 在移动端，我们使用更简单的交换逻辑
-        const rect = row.getBoundingClientRect();
-        const centerY = rect.top + rect.height / 2;
+        // 创建拖动视觉效果
+        const dragClone = row.cloneNode(true);
+        dragClone.style.position = 'fixed';
+        dragClone.style.top = `${row.offsetTop}px`;
+        dragClone.style.left = `${row.offsetLeft}px`;
+        dragClone.style.width = `${row.offsetWidth}px`;
+        dragClone.style.opacity = '0.7';
+        dragClone.style.zIndex = '100';
+        dragClone.style.pointerEvents = 'none';
+        dragClone.style.border = '2px dashed #2563eb';
         
-        // 找到最接近的行
-        let targetIndex = -1;
-        let minDistance = Infinity;
+        document.body.appendChild(dragClone);
         
-        rows.forEach((r, index) => {
-            if (r !== row) {
-                const rRect = r.getBoundingClientRect();
-                const rCenterY = rRect.top + rRect.height / 2;
-                const distance = Math.abs(rCenterY - centerY);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    targetIndex = index;
-                }
-            }
-        });
-        
-        if (targetIndex >= 0 && targetIndex < rows.length) {
-            if (targetIndex < currentIndex) {
-                // 向上移动
-                tbody.insertBefore(row, rows[targetIndex]);
+        // 移动事件处理
+        const moveHandler = function(e) {
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
             } else {
-                // 向下移动
-                const nextRow = rows[targetIndex + 1];
-                if (nextRow) {
-                    tbody.insertBefore(row, nextRow);
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            dragClone.style.left = `${clientX - 20}px`;
+            dragClone.style.top = `${clientY - 20}px`;
+            
+            // 检查是否应该交换位置
+            const currentRows = Array.from(tbody.querySelectorAll('tr'));
+            const currentRow = currentRows.find(r => r === row);
+            if (!currentRow) return;
+            
+            const currentIndex = currentRows.indexOf(currentRow);
+            const targetIndex = Math.max(0, Math.min(currentRows.length - 1, 
+                Math.floor((clientY - tbody.getBoundingClientRect().top) / row.offsetHeight)));
+            
+            if (targetIndex !== currentIndex && targetIndex >= 0 && targetIndex < currentRows.length) {
+                if (targetIndex < currentIndex) {
+                    // 向上移动
+                    tbody.insertBefore(row, currentRows[targetIndex]);
                 } else {
-                    tbody.appendChild(row);
+                    // 向下移动
+                    const nextRow = currentRows[targetIndex + 1];
+                    if (nextRow) {
+                        tbody.insertBefore(row, nextRow);
+                    } else {
+                        tbody.appendChild(row);
+                    }
                 }
             }
-        }
+        };
+        
+        // 结束事件
+        const endHandler = function(e) {
+            document.body.removeChild(dragClone);
+            document.removeEventListener('touchmove', moveHandler);
+            document.removeEventListener('touchend', endHandler);
+            document.removeEventListener('mousemove', moveHandler);
+            document.removeEventListener('mouseup', endHandler);
+            
+            // 强制更新计数
+            updateCourseCount();
+        };
+        
+        // 绑定事件
+        document.addEventListener('touchmove', moveHandler);
+        document.addEventListener('touchend', endHandler);
+        document.addEventListener('mousemove', moveHandler);
+        document.addEventListener('mouseup', endHandler);
     }
 
     const courseTemplates = {
@@ -1141,7 +1107,7 @@ function loadTemplateEngine() {
     if (tbodyElement) {
         const rows = tbodyElement.querySelectorAll('tr');
         rows.forEach(row => {
-            addSmartDragSupport(row);
+            makeRowDraggable(row);
         });
     }
 
