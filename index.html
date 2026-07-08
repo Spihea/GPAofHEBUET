@@ -5,7 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>河北工程技术学院 GPA 智能计算器</title>
     <link rel="icon" href="favicon.png" type="image/png">
-<style>
+    <style>
+         /* 弹窗样式 */
+    .modal-overlay {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal-content {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        max-width: 90%;
+        width: 400px;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        transform: scale(0.9);
+        transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.show .modal-content {
+        transform: scale(1);
+    }
         :root {
             --glass-bg: rgba(255, 255, 255, 0.45);
             --glass-border: rgba(255, 255, 255, 0.4);
@@ -442,6 +483,24 @@ select:focus {
 /* 移动端适配增强 - 智能文本处理 */
 
 @media (max-width: 768px) {
+       .modal-content {
+            width: 90%;
+            padding: 20px;
+        }
+        
+        .modal-content h3 {
+            font-size: 18px;
+        }
+        
+        .modal-content p {
+            font-size: 15px;
+        }
+        
+        .modal-content button {
+            font-size: 15px;
+            padding: 11px 20px;
+        }
+    }
   /* 移动端课程明细优化 */
       @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
         /* 高分辨率屏幕适配 */
@@ -756,7 +815,27 @@ select:focus {
     </style>
 </head>
 <body>
-
+    <div id="testNoticeModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; border-radius: 16px; padding: 24px; max-width: 90%; width: 400px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+        <div style="margin-bottom: 16px;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto;">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3 style="color: #1e293b; font-size: 20px; font-weight: 700; margin: 0 0 12px 0;">GPA计算器测试版</h3>
+        <p style="color: #475569; font-size: 16px; line-height: 1.5; margin: 0 0 24px 0;">
+            该GPA计算器目前处于测试阶段，功能可能不稳定或存在未发现的问题。
+        </p>
+        <p style="color: #2563eb; font-size: 16px; font-weight: 600; margin: 0 0 24px 0;">
+            反馈邮箱：admin@spihea.cn
+        </p>
+        <button onclick="closeTestNotice()" style="background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; width: 100%;">
+            我已知晓
+        </button>
+    </div>
+</div>
 <div class="app-container">
     
     <header class="mimic-header">
@@ -879,6 +958,36 @@ select:focus {
 </div>
 
 <script>
+     // 页面加载完成后显示弹窗
+    document.addEventListener('DOMContentLoaded', function() {
+        // 延迟显示以确保页面渲染完成
+        setTimeout(function() {
+            const modal = document.getElementById('testNoticeModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.classList.add('show');
+                
+                // 添加点击背景关闭功能
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeTestNotice();
+                    }
+                });
+            }
+        }, 300);
+    });
+
+    // 关闭弹窗函数
+    function closeTestNotice() {
+        const modal = document.getElementById('testNoticeModal');
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(function() {
+                modal.style.display = 'none';
+            }, 300);
+        }
+    }
+
     function manualAddCourse() {
     const nameInput = document.getElementById('newCourseName');
     const creditInput = document.getElementById('newCourseCredit');
@@ -1174,3 +1283,4 @@ function loadTemplateEngine() {
 </script>
 </body>
 </html>
+
