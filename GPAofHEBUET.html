@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>河北工程技术学院 GPA 智能计算器</title>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-text: #1e293b;
+            --glass-muted: #64748b;
+            --neon-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: radial-gradient(at 10% 20%, rgba(219, 234, 254, 0.45) 0, transparent 70%),
+                        radial-gradient(at 90% 10%, rgba(243, 232, 255, 0.4) 0, transparent 60%),
+                        radial-gradient(at 80% 80%, rgba(224, 242, 254, 0.5) 0, transparent 80%),
+                        #f8fafc;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1150px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 标题布局区 */
+        .mimic-header {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        /* 左上角图标 */
+        .mimic-top-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            color: #64748b;
+        }
+
+        .mimic-icon-btn {
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s, transform 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .mimic-icon-btn:hover {
+            color: #1e293b;
+            transform: scale(1.05);
+        }
+
+        .mimic-title-group {
+            text-align: left;
+        }
+
+        .mimic-main-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            letter-spacing: 1px;
+            line-height: 1.3;
+        }
+
+        .mimic-sub-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 4px 0 0 0;
+            letter-spacing: 1px;
+            line-height: 1.3;
+        }
+
+        /* 核心功能布局 */
+        .app-grid {
+            display: grid;
+            grid-template-columns: 310px 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px) saturate(140%);
+            -webkit-backdrop-filter: blur(30px) saturate(140%);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.03),
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 下拉选择区 */
+        .config-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .config-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            border-radius: 10px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--glass-text);
+            outline: none;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        select:focus {
+            border-color: #2563eb;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-glass-submit {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+
+        .btn-glass-submit:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        /* 右侧控制面板 */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        /* 看板卡片区 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px) saturate(140%);
+            -webkit-backdrop-filter: blur(30px) saturate(140%);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 22px 24px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 135px;
+        }
+
+        .stat-card-neon {
+            background: var(--neon-gradient);
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.15), 
+                        inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--glass-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-card-neon .stat-label { color: rgba(255, 255, 255, 0.85); }
+
+        .stat-value {
+            font-size: 40px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+            margin: 14px 0 6px 0;
+        }
+
+        .stat-card-neon .stat-value { color: #ffffff; }
+
+        .stat-sub {
+            font-size: 12px;
+            color: var(--glass-muted);
+            font-weight: 500;
+        }
+
+        .stat-card-neon .stat-sub { color: rgba(255, 255, 255, 0.75); }
+
+        /* 课程明细：翻页/滚动高强度毛玻璃 */
+        .detail-card {
+            padding: 24px 0 0 0;
+            overflow: hidden;
+        }
+
+        .detail-header {
+            padding: 0 24px 18px 24px;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+            margin: 0;
+        }
+
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(25px) saturate(160%);
+            -webkit-backdrop-filter: blur(25px) saturate(160%);
+            color: #334155;
+            font-weight: 700;
+            font-size: 12.5px;
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        td {
+            padding: 15px 24px;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.02);
+            font-size: 14px;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .course-name-field {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .credit-tag {
+            background: rgba(15, 23, 42, 0.04);
+            color: #334155;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .score-input {
+            width: 110px;
+            padding: 8px 12px;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.6);
+            transition: all 0.2s;
+        }
+
+        .score-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 90px 24px;
+            color: var(--glass-muted);
+            text-align: center;
+        }
+
+        .empty-icon {
+            color: rgba(15, 23, 42, 0.12);
+            margin-bottom: 14px;
+        }
+
+        .footer-declaration {
+            text-align: center;
+            margin-top: 60px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.06); border-radius: 10px; }
+
+        @media (max-width: 900px) {
+            .app-grid { grid-template-columns: 1fr; gap: 20px;}
+            .stats-row { grid-template-columns: 1fr; gap: 14px;}
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <header class="mimic-header">
+        <div class="mimic-top-bar">
+            <a href="https://GPA.Spihea.cn" target="_blank" class="mimic-icon-btn" title="返回主页">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </a>
+            <a href="https://github.com/Spihea" target="_blank" class="mimic-icon-btn" title="查看 GitHub 仓库">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            </a>
+            <a href="https://jwc.hebuet.edu.cn/info/1463/11033.htm" target="_blank" class="mimic-icon-btn" title="查看计算规则详情">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </a>
+        </div>
+
+        <div class="mimic-title-group">
+            <h1 class="mimic-main-title">河北工程技术学院</h1>
+            <h2 class="mimic-sub-title">GPA计算器</h2>
+        </div>
+    </header>
+
+    <div class="app-grid">
+        <aside class="glass-card">
+            <h2 class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                参数配置
+            </h2>
+            <div class="config-group">
+                <label>修读专业</label>
+                <select id="majorSelect" onchange="handleConfigChange()">
+                    <option value="">请选择专业...</option>
+                    <option value="ds">数据科学与大数据技术</option>
+                    <option value="sg">大数据管理与应用</option>
+                    <option value="wl">物联网工程</option>
+                    <option value="ai">人工智能</option>
+                    <option value="tai">智能科学与技术</option>
+                    <option value="vr">虚拟现实技术</option>
+                </select>
+            </div>
+            <div class="config-group">
+                <label>目标学期</label>
+                <select id="semesterSelect" onchange="handleConfigChange()">
+                    <option value="">请选择学期...</option>
+                    <option value="2025_1">2025-2026学年 第一学期</option>
+                    <option value="2025_2">2025-2026学年 第二学期</option>
+                </select>
+            </div>
+            <button class="btn-glass-submit" onclick="loadTemplateEngine()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                智能识别并加载
+            </button>
+        </aside>
+
+        <main class="right-panel">
+            <div class="stats-row">
+                <div class="stat-card stat-card-neon">
+                    <div class="stat-label">
+                        <span>平均学分绩点 (GPA)</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    <div class="stat-value" id="boardGPA">0</div>
+                    <div class="stat-sub">基于学校官方分段绩点规则</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">
+                        <span>加权平均分</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    </div>
+                    <div class="stat-value" id="boardAvg">0</div>
+                    <div class="stat-sub" id="boardCount">总修读课程数：0 门</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">
+                        <span>总学分</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <div class="stat-value" id="boardCredits">0</div>
+                    <div class="stat-sub">有效统计学分</div>
+                </div>
+            </div>
+
+            <div class="glass-card detail-card">
+                <h2 class="card-title detail-header">课程明细</h2>
+                <div class="table-container" id="tableContainer">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        </div>
+                        <div>暂无有效数据，配置参数后点击智能识别</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="footer-declaration">
+        Copyright @ 2026 Spihea. All Rights Reserved <br>
+        本工具由Google Gemini 辅助制作
+        反馈交流：admin@Spihea.cn
+    </footer>
+</div>
+
+<script>
+    const courseTemplates = {
+        "ds_2025_1": [
+            { name: "人工智能导论", credit: 2.0 },
+            { name: "高等数学(上)", credit: 5.0 },
+            { name: "国家安全教育", credit: 1.0 },
+            { name: "劳动教育", credit: 0.0 },
+            { name: "形势与政策（一）", credit: 0.25 },
+            { name: "大学英语1", credit: 2.0 },
+            { name: "大学体育1", credit: 1.0 },
+            { name: "思想道德与法治", credit: 2.5 },
+            { name: "认识实习", credit: 1.0 },
+            { name: "C语言程序设计", credit: 3.0 },
+            { name: "数据科学导论", credit: 2.0 }
+        ],
+        "ds_2025_2": [
+            { name: "面向对象程序设计", credit: 3.0 },
+            { name: "中国近代史纲要", credit: 2.5 },
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 }
+        ],
+        "tai_2025_2": [
+            { name: "数据结构", credit: 2.0 },
+            { name: "中国近代史纲要", credit: 2.5 },
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 },
+            { name: "面向对象程序设计", credit: 3.0 }
+        ],
+        "vr_2025_2": [
+            { name: "图形图像处理技术基础", credit: 2.0 },
+            { name: "Python程序设计基础", credit: 2.0 },
+            { name: "平面构成", credit: 2.0 },
+            { name: "中国近代史纲要", credit: 2.5 },
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 }
+         ],
+        "ai_2025_2": [
+            { name: "Python程序与设计", credit: 3.0 },
+            { name: "中国近代史纲要", credit: 2.5 },
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 },
+        ],
+        "sg_2025_2": [
+            { name: "管理学", credit: 2.0 },
+            { name: "数据结构", credit: 2.0 },
+            { name: "Python程序设计", credit: 2.0 },
+            { name: "计算机网络", credit: 2.0 },      
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 },
+            { name: "人工智能导论", credit: 2.0 },      
+    ],
+            "wl_2025_2": [
+            { name: "离散数学", credit: 3.0 },
+            { name: "电路与模拟电子技术", credit: 4.0 },
+            { name: "软硬件交互设计", credit: 2.0 },
+            { name: "工程制图", credit: 2.0 }, 
+            { name: "计算机网络", credit: 2.0 },      
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 },  
+    ],
+    };
+
+    function handleConfigChange() {
+        const container = document.getElementById('tableContainer');
+        if (!container.querySelector('.empty-state')) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div>配置已变更，请重新加载课程。</div>
+                </div>`;
+            resetStatsDashboard();
+        }
+    }
+
+    function loadTemplateEngine() {
+        const major = document.getElementById('majorSelect').value;
+        const semester = document.getElementById('semesterSelect').value;
+
+        if (!major || !semester) {
+            alert('请先选择修读专业和目标学期！');
+            return;
+        }
+
+        const token = `${major}_${semester}`;
+        const dataset = courseTemplates[token];
+
+        if (!dataset) {
+            alert('该专业或学期暂无预设课程数据。');
+            return;
+        }
+
+        const container = document.getElementById('tableContainer');
+        let htmlBuffer = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>课程名称</th>
+                        <th>学分</th>
+                        <th>最终成绩</th>
+                    </tr>
+                </thead>
+                <tbody id="innerTbody">
+        `;
+
+        dataset.forEach((item, idx) => {
+            htmlBuffer += `
+                <tr>
+                    <td class="course-name-field">${item.name}</td>
+                    <td><span class="credit-tag">${item.credit.toFixed(2)}</span></td>
+                    <td>
+                        <input type="number" 
+                               class="score-input" 
+                               placeholder="0-100" 
+                               min="0" 
+                               max="100" 
+                               step="0.1" 
+                               oninput="coreCalcEngine()"
+                               data-credit="${item.credit}">
+                    </td>
+                </tr>
+            `;
+        });
+
+        htmlBuffer += `</tbody></table>`;
+        container.innerHTML = htmlBuffer;
+
+        document.getElementById('boardCount').innerText = `总修读课程数：${dataset.length} 门`;
+        resetStatsDashboard();
+
+        const firstInput = container.querySelector('.score-input');
+        if (firstInput) firstInput.focus();
+    }
+
+    function resetStatsDashboard() {
+        document.getElementById('boardGPA').innerText = '0';
+        document.getElementById('boardAvg').innerText = '0';
+        document.getElementById('boardCredits').innerText = '0';
+    }
+
+    function parseScoreToGPA(score) {
+        if (score >= 90) return 4.0;
+        if (score >= 85) return 3.7;
+        if (score >= 82) return 3.3;
+        if (score >= 78) return 3.0;
+        if (score >= 75) return 2.7;
+        if (score >= 71) return 2.3;
+        if (score >= 67) return 2.0;
+        if (score >= 63) return 1.5;
+        if (score >= 60) return 1.0;
+        return 0.0;
+    }
+
+    function coreCalcEngine() {
+        const inputs = document.querySelectorAll('.score-input');
+        let totalCredits = 0;
+        let weightedScoreSum = 0;
+        let weightedGPASum = 0;
+        let activeCourseCount = 0;
+
+        inputs.forEach(input => {
+            const credit = parseFloat(input.getAttribute('data-credit'));
+            const score = parseFloat(input.value);
+
+            if (!isNaN(score) && score >= 0 && score <= 100) {
+                activeCourseCount++;
+                if (credit > 0) {
+                    totalCredits += credit;
+                    weightedScoreSum += (score * credit);
+                    weightedGPASum += (parseScoreToGPA(score) * credit);
+                }
+            }
+        });
+
+        if (activeCourseCount > 0 && totalCredits > 0) {
+            document.getElementById('boardCredits').innerText = totalCredits.toFixed(2);
+            document.getElementById('boardAvg').innerText = (weightedScoreSum / totalCredits).toFixed(2);
+            document.getElementById('boardGPA').innerText = (weightedGPASum / totalCredits).toFixed(2);
+        } else {
+            resetStatsDashboard();
+        }
+    }
+</script>
+</body>
+</html>
