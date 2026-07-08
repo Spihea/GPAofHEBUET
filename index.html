@@ -586,10 +586,22 @@ select:focus {
                    oninput="coreCalcEngine()" data-credit="${parseFloat(creditInput.value)}">
         </td>
         <td>
-            <button onclick="this.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
-                    style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
-                删除
-            </button>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button onclick="moveCourseUp(this); coreCalcEngine();" 
+                        style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;" 
+                        title="上移">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 15 12 8 19 15"/></svg>
+                </button>
+                <button onclick="moveCourseDown(this); coreCalcEngine();" 
+                        style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;" 
+                        title="下移">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 12 16 19 9"/></svg>
+                </button>
+                <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
+                        style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
+                    删除
+                </button>
+            </div>
         </td>
     `;
     
@@ -598,9 +610,10 @@ select:focus {
     nameInput.value = '';
     creditInput.value = '';
     
-    // 更新总修读课程数
+    // 更新课程计数
     updateCourseCount();
 }
+
     const courseTemplates = {
         "ds_2025_1": [
             { name: "人工智能导论", credit: 2.0 },
@@ -760,8 +773,22 @@ function loadTemplateEngine() {
                            oninput="coreCalcEngine()" data-credit="${item.credit}">
                 </td>
                 <td>
-                    <button onclick="this.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
-                            style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">删除</button>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button onclick="moveCourseUp(this); coreCalcEngine();" 
+                                style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;" 
+                                title="上移">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 15 12 8 19 15"/></svg>
+                        </button>
+                        <button onclick="moveCourseDown(this); coreCalcEngine();" 
+                                style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;" 
+                                title="下移">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 12 16 19 9"/></svg>
+                        </button>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
+                                style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
+                            删除
+                        </button>
+                    </div>
                 </td>
             </tr>
         `;
@@ -782,6 +809,21 @@ function loadTemplateEngine() {
         document.getElementById('boardAvg').innerText = '0';
         document.getElementById('boardCredits').innerText = '0';
         document.getElementById('boardCount').innerText = '总修读课程数：0 门';
+    }
+
+    // 新增的课程排序函数
+    function moveCourseUp(button) {
+        const row = button.closest('tr');
+        if (row && row.previousElementSibling) {
+            row.parentNode.insertBefore(row, row.previousElementSibling);
+        }
+    }
+
+    function moveCourseDown(button) {
+        const row = button.closest('tr');
+        if (row && row.nextElementSibling) {
+            row.parentNode.insertBefore(row.nextElementSibling, row);
+        }
     }
 
     // 新增的课程计数更新函数
@@ -850,3 +892,4 @@ function loadTemplateEngine() {
 </script>
 </body>
 </html>
+
