@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>河北工程技术学院 GPA 智能计算器</title>
-    <style>
+    <link rel="icon" href="favicon.png" type="image/png">
+   <style>
         :root {
             --glass-bg: rgba(255, 255, 255, 0.45);
             --glass-border: rgba(255, 255, 255, 0.4);
@@ -358,6 +359,66 @@
             .app-grid { grid-template-columns: 1fr; gap: 20px;}
             .stats-row { grid-template-columns: 1fr; gap: 14px;}
         }
+        
+        /* 自定义模式样式 */
+        .custom-course-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+        }
+        
+        .custom-course-input {
+            padding: 10px 14px;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 8px;
+            font-size: 14px;
+            flex: 1;
+        }
+        
+        .custom-course-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .custom-course-delete:hover {
+            background: #dc2626;
+        }
+        
+        .mode-switch-info {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        /* 自定义模式添加区域样式 */
+        #customAddSection {
+            border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 900px) {
+            #customAddSection {
+                padding: 16px;
+            }
+            
+            .custom-course-input {
+                flex: 1;
+                width: auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -390,6 +451,14 @@
                 参数配置
             </h2>
             <div class="config-group">
+                <label>计算模式</label>
+                <select id="modeSelect" onchange="switchMode()">
+                    <option value="template">专业模式</option>
+                    <option value="custom">自定义模式</option>
+                </select>
+                <div class="mode-switch-info">专业模式可自动加载对应专业课程，自定义模式可手动添加任意课程</div>
+            </div>
+            <div class="config-group" id="templateConfigGroup">
                 <label>修读专业</label>
                 <select id="majorSelect" onchange="handleConfigChange()">
                     <option value="">请选择专业...</option>
@@ -401,7 +470,7 @@
                     <option value="vr">虚拟现实技术</option>
                 </select>
             </div>
-            <div class="config-group">
+            <div class="config-group" id="templateConfigGroup2">
                 <label>目标学期</label>
                 <select id="semesterSelect" onchange="handleConfigChange()">
                     <option value="">请选择学期...</option>
@@ -411,7 +480,7 @@
             </div>
             <button class="btn-glass-submit" onclick="loadTemplateEngine()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                智能识别并加载
+                加载课程
             </button>
         </aside>
 
@@ -445,12 +514,23 @@
 
             <div class="glass-card detail-card">
                 <h2 class="card-title detail-header">课程明细</h2>
+                <!-- 自定义模式添加课程区域 -->
+                <div id="customAddSection" style="display: none; padding: 24px 24px 0 24px;">
+                    <div class="config-group">
+                        <label>添加新课程</label>
+                        <div style="display: flex; gap: 12px; margin-top: 8px;">
+                            <input type="text" id="courseNameInput" placeholder="课程名称" class="custom-course-input">
+                            <input type="number" id="courseCreditInput" placeholder="学分" min="0.5" max="10" step="0.5" class="custom-course-input">
+                            <button class="btn-glass-submit" onclick="addCustomCourse()" style="padding: 10px 16px;">添加课程</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="table-container" id="tableContainer">
                     <div class="empty-state">
                         <div class="empty-icon">
                             <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         </div>
-                        <div>暂无有效数据，配置参数后点击智能识别</div>
+                        <div>请选择计算模式并加载课程</div>
                     </div>
                 </div>
             </div>
@@ -568,6 +648,9 @@
     ],
     };
 
+    // 存储自定义课程的数组
+    let customCourses = [];
+
     function handleConfigChange() {
         const container = document.getElementById('tableContainer');
         if (!container.querySelector('.empty-state')) {
@@ -582,24 +665,199 @@
         }
     }
 
+    function switchMode() {
+        const mode = document.getElementById('modeSelect').value;
+        
+        if (mode === 'template') {
+            document.getElementById('templateConfigGroup').style.display = 'flex';
+            document.getElementById('templateConfigGroup2').style.display = 'flex';
+            document.getElementById('customAddSection').style.display = 'none';
+            
+            // 清空自定义课程
+            customCourses = [];
+            
+            // 清空课程表格
+            const container = document.getElementById('tableContainer');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div>暂无有效数据，配置参数后点击智能识别</div>
+                </div>`;
+            
+            document.getElementById('boardCount').innerText = '总修读课程数：0 门';
+            resetStatsDashboard();
+        } else {
+            document.getElementById('templateConfigGroup').style.display = 'none';
+            document.getElementById('templateConfigGroup2').style.display = 'none';
+            document.getElementById('customAddSection').style.display = 'block';
+            
+            // 显示自定义课程列表
+            showCustomCourses();
+        }
+    }
+
     function loadTemplateEngine() {
-        const major = document.getElementById('majorSelect').value;
-        const semester = document.getElementById('semesterSelect').value;
+        const mode = document.getElementById('modeSelect').value;
+        
+        if (mode === 'template') {
+            const major = document.getElementById('majorSelect').value;
+            const semester = document.getElementById('semesterSelect').value;
 
-        if (!major || !semester) {
-            alert('请先选择修读专业和目标学期！');
+            if (!major || !semester) {
+                alert('请先选择修读专业和目标学期！');
+                return;
+            }
+
+            const token = `${major}_${semester}`;
+            const dataset = courseTemplates[token];
+
+            if (!dataset) {
+                alert('该专业或学期暂无预设课程数据。');
+                return;
+            }
+
+            const container = document.getElementById('tableContainer');
+            let htmlBuffer = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>课程名称</th>
+                            <th>学分</th>
+                            <th>最终成绩</th>
+                        </tr>
+                    </thead>
+                    <tbody id="innerTbody">
+            `;
+
+            dataset.forEach((item, idx) => {
+                htmlBuffer += `
+                    <tr>
+                        <td class="course-name-field">${item.name}</td>
+                        <td><span class="credit-tag">${item.credit.toFixed(2)}</span></td>
+                        <td>
+                            <input type="number" 
+                                   class="score-input" 
+                                   placeholder="0-100" 
+                                   min="0" 
+                                   max="100" 
+                                   step="0.1" 
+                                   oninput="coreCalcEngine()"
+                                   data-credit="${item.credit}">
+                        </td>
+                    </tr>
+                `;
+            });
+
+            htmlBuffer += `</tbody></table>`;
+            container.innerHTML = htmlBuffer;
+
+            document.getElementById('boardCount').innerText = `总修读课程数：${dataset.length} 门`;
+            resetStatsDashboard();
+
+            const firstInput = container.querySelector('.score-input');
+            if (firstInput) firstInput.focus();
+        } else {
+            // 自定义模式：使用当前自定义课程进行计算
+            if (customCourses.length === 0) {
+                alert('请先添加至少一门课程！');
+                return;
+            }
+            
+            const container = document.getElementById('tableContainer');
+            let htmlBuffer = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>课程名称</th>
+                            <th>学分</th>
+                            <th>最终成绩</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="innerTbody">
+            `;
+
+            customCourses.forEach((item, idx) => {
+                htmlBuffer += `
+                    <tr>
+                        <td class="course-name-field">${item.name}</td>
+                        <td><span class="credit-tag">${item.credit.toFixed(2)}</span></td>
+                        <td>
+                            <input type="number" 
+                                   class="score-input" 
+                                   placeholder="0-100" 
+                                   min="0" 
+                                   max="100" 
+                                   step="0.1" 
+                                   oninput="coreCalcEngine()"
+                                   data-credit="${item.credit}">
+                        </td>
+                        <td>
+                            <button class="custom-course-delete" onclick="removeCustomCourse(${idx})">×</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            htmlBuffer += `</tbody></table>`;
+            container.innerHTML = htmlBuffer;
+
+            document.getElementById('boardCount').innerText = `总修读课程数：${customCourses.length} 门`;
+            resetStatsDashboard();
+
+            const firstInput = container.querySelector('.score-input');
+            if (firstInput) firstInput.focus();
+        }
+    }
+
+    function addCustomCourse() {
+        const nameInput = document.getElementById('courseNameInput');
+        const creditInput = document.getElementById('courseCreditInput');
+        
+        const name = nameInput.value.trim();
+        const credit = parseFloat(creditInput.value);
+        
+        if (!name || isNaN(credit) || credit <= 0) {
+            alert('请输入有效的课程名称和学分！');
             return;
         }
+        
+        customCourses.push({
+            name: name,
+            credit: credit
+        });
+        
+        // 清空输入框
+        nameInput.value = '';
+        creditInput.value = '';
+        
+        // 更新显示
+        showCustomCourses();
+    }
 
-        const token = `${major}_${semester}`;
-        const dataset = courseTemplates[token];
+    function removeCustomCourse(index) {
+        customCourses.splice(index, 1);
+        showCustomCourses();
+    }
 
-        if (!dataset) {
-            alert('该专业或学期暂无预设课程数据。');
-            return;
-        }
-
+    function showCustomCourses() {
         const container = document.getElementById('tableContainer');
+        
+        if (customCourses.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div>暂无自定义课程，请在上方添加课程</div>
+                </div>`;
+            document.getElementById('boardCount').innerText = '总修读课程数：0 门';
+            resetStatsDashboard();
+            return;
+        }
+        
         let htmlBuffer = `
             <table>
                 <thead>
@@ -607,12 +865,13 @@
                         <th>课程名称</th>
                         <th>学分</th>
                         <th>最终成绩</th>
+                        <th>操作</th>
                     </tr>
                 </thead>
                 <tbody id="innerTbody">
         `;
 
-        dataset.forEach((item, idx) => {
+        customCourses.forEach((item, idx) => {
             htmlBuffer += `
                 <tr>
                     <td class="course-name-field">${item.name}</td>
@@ -627,18 +886,18 @@
                                oninput="coreCalcEngine()"
                                data-credit="${item.credit}">
                     </td>
+                    <td>
+                        <button class="custom-course-delete" onclick="removeCustomCourse(${idx})">×</button>
+                    </td>
                 </tr>
             `;
         });
 
         htmlBuffer += `</tbody></table>`;
         container.innerHTML = htmlBuffer;
-
-        document.getElementById('boardCount').innerText = `总修读课程数：${dataset.length} 门`;
+        
+        document.getElementById('boardCount').innerText = `总修读课程数：${customCourses.length} 门`;
         resetStatsDashboard();
-
-        const firstInput = container.querySelector('.score-input');
-        if (firstInput) firstInput.focus();
     }
 
     function resetStatsDashboard() {
@@ -689,6 +948,12 @@
             resetStatsDashboard();
         }
     }
+
+    // 初始化时设置默认模式为模板模式
+    window.onload = function() {
+        document.getElementById('modeSelect').value = 'template';
+        switchMode();
+    };
 </script>
 </body>
 </html>
