@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>河北工程技术学院 GPA 智能计算器</title>
     <link rel="icon" href="favicon.png" type="image/png">
-    <style>
+      <style>
         :root {
             --glass-bg: rgba(255, 255, 255, 0.45);
             --glass-border: rgba(255, 255, 255, 0.4);
@@ -872,8 +872,8 @@ select:focus {
                    oninput="coreCalcEngine()" data-credit="${parseFloat(creditInput.value)}">
         </td>
         <td>
-            <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
-                    style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
+            <button onclick="deleteCourse(this);" 
+                    style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px; padding: 6px 12px; border-radius: 6px; background: rgba(239,68,68,0.1);">
                 删除
             </button>
         </td>
@@ -887,6 +887,16 @@ select:focus {
     // 更新课程计数
     updateCourseCount();
 }
+
+    // 修复删除功能 - 确保只删除当前课程
+    function deleteCourse(button) {
+        const row = button.closest('tr');
+        if (row) {
+            row.remove();
+            updateCourseCount();
+            coreCalcEngine();
+        }
+    }
 
     const courseTemplates = {
         "ds_2025_1": [
@@ -1047,8 +1057,8 @@ function loadTemplateEngine() {
                            oninput="coreCalcEngine()" data-credit="${item.credit}">
                 </td>
                 <td>
-                    <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
-                            style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
+                    <button onclick="deleteCourse(this);" 
+                            style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px; padding: 6px 12px; border-radius: 6px; background: rgba(239,68,68,0.1);">
                         删除
                     </button>
                 </td>
