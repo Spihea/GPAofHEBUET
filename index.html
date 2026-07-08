@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>河北工程技术学院 GPA 智能计算器</title>
     <link rel="icon" href="favicon.png" type="image/png">
-      <style>
+<style>
         :root {
             --glass-bg: rgba(255, 255, 255, 0.45);
             --glass-border: rgba(255, 255, 255, 0.4);
@@ -440,14 +440,155 @@ select:focus {
 
 /* 移动端适配增强 */
 /* 移动端适配增强 - 智能文本处理 */
+
 @media (max-width: 768px) {
-    /* 网格布局调整 */
-            .table-container table th:last-child,
-        .table-container table td:last-child {
-            min-width: 160px;
-            max-width: 200px;
-            width: 160px;
+  /* 移动端课程明细优化 */
+      @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        /* 高分辨率屏幕适配 */
+        .table-container table {
+            font-size: 100%;
         }
+        
+        th, td {
+            padding: 1.2rem 1.6rem;
+        }
+        
+        .score-input {
+            padding: 1rem 1.2rem;
+            font-size: 1rem;
+        }
+        
+        .delete-btn-mobile {
+            padding: 0.8rem 1.6rem;
+            font-size: 1rem;
+        }
+    }
+    
+    /* 缩放适配 - 使用相对单位 */
+    @media screen and (min-width: 320px) {
+        .table-container {
+            margin: 0 -0.75rem;
+            padding: 0 0.75rem;
+        }
+        
+        table {
+            min-width: 30rem; /* 使用rem替代px */
+        }
+        
+        th, td {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem; /* 14px */
+        }
+        
+        .course-name-field {
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+        
+        .credit-tag {
+            padding: 0.25rem 0.625rem;
+            font-size: 0.75rem; /* 12px */
+        }
+        
+        .score-input {
+            padding: 0.625rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .delete-btn-mobile {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            min-width: 5rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        /* 表格优化 */
+        
+        .table-container {
+            overflow-x: auto;
+            margin: 0 -12px;
+            padding: 0 12px;
+        }
+        
+        table {
+            width: 100%;
+            min-width: 500px; /* 确保有足够宽度 */
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        /* 课程名称列 - 增加可读性 */
+        .course-name-field {
+            font-weight: 600;
+            color: #1e293b;
+            max-width: 200px;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+        
+        /* 学分列 - 优化显示 */
+        .credit-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        
+        /* 成绩输入列 - 增加高度 */
+        .score-input {
+            width: 100%;
+            min-width: 100px;
+            padding: 10px 12px;
+            font-size: 14px;
+            height: auto;
+        }
+        
+        /* 操作列 - 增加空间 */
+        td:last-child {
+            min-width: 120px;
+            padding-left: 8px;
+        }
+        
+        .delete-btn-mobile {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(239, 68, 68, 0.1);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+        }
+        
+        .delete-btn-mobile:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: scale(1.03);
+        }
+        
+        /* 空状态优化 */
+        .empty-state {
+            padding: 60px 24px;
+            text-align: center;
+        }
+        
+        .empty-icon svg {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 12px;
+        }
+        
     .app-grid { 
         grid-template-columns: 1fr; 
         gap: 16px;
@@ -581,105 +722,37 @@ select:focus {
 }
 
 /* 超小屏幕适配 */
-        @media (max-width: 480px) {
-            .table-container table th:last-child,
-            .table-container table td:last-child {
-                min-width: 140px;
-                max-width: 180px;
-                width: 140px;
-            }
-            
-            .operation-btn {
-                width: 28px;
-                height: 28px;
-                font-size: 12px;
-            }
-            
-            .delete-btn {
-                width: 50px;
-                font-size: 11px;
-                padding: 2px 6px;
-            }
-    .app-container {
-        padding: 16px 12px;
+   @media (max-width: 480px) {
+        .table-container {
+            margin: 0 calc(-1.5vw);
+            padding: 0 1.5vw;
+        }
+        
+        th, td {
+            padding: 1vw 1.2vw;
+            font-size: clamp(11px, 0.8125rem, 13px);
+        }
+        
+        .course-name-field {
+            font-size: clamp(12px, 0.875rem, 14px);
+        }
+        
+        .credit-tag {
+            padding: 0.2vw 0.5vw;
+            font-size: clamp(10px, 0.75rem, 12px);
+        }
+        
+        .score-input {
+            padding: 0.5vw 0.6vw;
+            font-size: clamp(11px, 0.8125rem, 13px);
+        }
+        
+        .delete-btn-mobile {
+            padding: 0.375vw 0.75vw;
+            font-size: clamp(11px, 0.8125rem, 13px);
+            min-width: 4vw;
+        }
     }
-    
-    .mimic-main-title {
-        font-size: 20px;
-    }
-    
-    .mimic-sub-title {
-        font-size: 18px;
-    }
-    
-    .stat-value {
-        font-size: 28px;
-    }
-    
-    .stat-label {
-        font-size: 12px;
-    }
-    
-    .stat-sub {
-        font-size: 10px;
-    }
-    
-    /* 表格进一步优化 */
-    .table-container {
-        margin: 0 -12px;
-        padding: 0 12px;
-        max-width: 100vw;
-    }
-    
-    table {
-        width: 100%;
-        table-layout: fixed;
-    }
-    
-    th, td {
-        padding: 8px 10px;
-        font-size: 11px;
-        white-space: normal;
-        word-break: break-word;
-        line-height: 1.3;
-    }
-    
-    /* 课程名称在超小屏幕上的处理 */
-    .course-name-field {
-        max-width: 120px;
-        -webkit-line-clamp: 2;
-        font-size: 12px;
-    }
-    
-    /* 按钮和输入框 */
-    select, .score-input, .btn-glass-submit {
-        font-size: 14px;
-        padding: 10px;
-        width: 100%;
-    }
-    
-    .btn-glass-submit {
-        padding: 12px;
-        font-size: 13px;
-    }
-    
-    /* 手动添加课程 */
-    #newCourseName, #newCourseCredit {
-        font-size: 14px;
-        padding: 10px;
-        width: 100%;
-    }
-    
-    
-    /* 防止垂直拉长的关键设置 */
-    .app-container {
-        min-height: auto;
-    }
-    
-    body {
-        min-height: auto;
-    }
-}
     </style>
 </head>
 <body>
@@ -834,8 +907,8 @@ select:focus {
                    oninput="coreCalcEngine()" data-credit="${parseFloat(creditInput.value)}">
         </td>
         <td>
-            <button onclick="deleteCourse(this);" 
-                    style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px; padding: 6px 12px; border-radius: 6px; background: rgba(239,68,68,0.1);">
+            <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
+                    style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
                 删除
             </button>
         </td>
@@ -849,16 +922,6 @@ select:focus {
     // 更新课程计数
     updateCourseCount();
 }
-
-    // 修复删除功能 - 确保只删除当前课程
-    function deleteCourse(button) {
-        const row = button.closest('tr');
-        if (row) {
-            row.remove();
-            updateCourseCount();
-            coreCalcEngine();
-        }
-    }
 
     const courseTemplates = {
         "ds_2025_1": [
@@ -1019,8 +1082,8 @@ function loadTemplateEngine() {
                            oninput="coreCalcEngine()" data-credit="${item.credit}">
                 </td>
                 <td>
-                    <button onclick="deleteCourse(this);" 
-                            style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px; padding: 6px 12px; border-radius: 6px; background: rgba(239,68,68,0.1);">
+                    <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
+                            style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
                         删除
                     </button>
                 </td>
