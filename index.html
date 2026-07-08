@@ -442,6 +442,50 @@ select:focus {
 /* 移动端适配增强 - 智能文本处理 */
 @media (max-width: 768px) {
     /* 网格布局调整 */
+            .table-container table th:last-child,
+        .table-container table td:last-child {
+            min-width: 160px;
+            max-width: 200px;
+            width: 160px;
+        }
+        
+        /* 操作按钮容器 */
+        .operation-buttons {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        /* 按钮样式优化 */
+        .operation-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            color: #64748b;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .operation-btn:hover {
+            background: rgba(255, 255, 255, 0.7);
+            transform: scale(1.05);
+        }
+        
+        .delete-btn {
+            width: 60px;
+            font-size: 12px;
+            padding: 4px 8px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
     .app-grid { 
         grid-template-columns: 1fr; 
         gap: 16px;
@@ -575,7 +619,25 @@ select:focus {
 }
 
 /* 超小屏幕适配 */
-@media (max-width: 480px) {
+        @media (max-width: 480px) {
+            .table-container table th:last-child,
+            .table-container table td:last-child {
+                min-width: 140px;
+                max-width: 180px;
+                width: 140px;
+            }
+            
+            .operation-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            
+            .delete-btn {
+                width: 50px;
+                font-size: 11px;
+                padding: 2px 6px;
+            }
     .app-container {
         padding: 16px 12px;
     }
@@ -809,24 +871,25 @@ select:focus {
             <input type="number" class="score-input" placeholder="0-100" min="0" max="100" step="0.1" 
                    oninput="coreCalcEngine()" data-credit="${parseFloat(creditInput.value)}">
         </td>
-        <td>
-            <div style="display: flex; gap: 8px; align-items: center;">
-                <button onclick="moveCourseUp(this); updateCourseCount(); coreCalcEngine();" 
-                        style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; background: rgba(255,255,255,0.5);" 
-                        title="上移">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 15 12 8 19 15"/></svg>
-                </button>
-                <button onclick="moveCourseDown(this); updateCourseCount(); coreCalcEngine();" 
-                        style="background:none; border:none; color:#64748b; cursor:pointer; font-size:14px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; background: rgba(255,255,255,0.5);" 
-                        title="下移">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 12 16 19 9"/></svg>
-                </button>
-                <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
-                        style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
-                    删除
-                </button>
-            </div>
-        </td>
+      <!-- 在手动添加课程的tr中 -->
+<td>
+    <div class="operation-buttons">
+        <button onclick="moveCourseUp(this); updateCourseCount(); coreCalcEngine();" 
+                class="operation-btn" 
+                title="上移">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 15 12 8 19 15"/></svg>
+        </button>
+        <button onclick="moveCourseDown(this); updateCourseCount(); coreCalcEngine();" 
+                class="operation-btn" 
+                title="下移">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 12 16 19 9"/></svg>
+        </button>
+        <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
+                class="operation-btn delete-btn">
+            删除
+        </button>
+    </div>
+</td>   
     `;
     
     document.getElementById('innerTbody').appendChild(newRow);
@@ -1116,4 +1179,3 @@ function loadTemplateEngine() {
 </script>
 </body>
 </html>
-
