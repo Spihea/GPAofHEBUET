@@ -460,7 +460,311 @@ select:focus {
             justify-content: center;
             padding: 90px 24px;
             color: var(--glass-muted);
-            text-align: center;
+            text-ali
+            <script>
+    // 修复删除功能 - 使用更精确的选择器
+    function deleteCourse(button) {
+        // 更精确地找到当前行
+        const row = button.closest('tr');
+        if (row) {
+            // 确保只删除这一行
+            row.remove();
+            updateCourseCount();
+            coreCalcEngine();
+        }
+    }
+
+    function manualAddCourse() {
+    const nameInput = document.getElementById('newCourseName');
+    const creditInput = document.getElementById('newCourseCredit');
+    const tbody = document.getElementById('innerTbody');
+
+    if (!nameInput.value || !creditInput.value) {
+        alert('请填写完整的课程名和学分');
+        return;
+    }
+
+    // 确保有表结构
+    if (!tbody) {
+        document.getElementById('tableContainer').innerHTML = `
+            <table>
+                <thead><tr><th>课程名称</th><th>学分</th><th>最终成绩</th><th>操作</th></tr></thead>
+                <tbody id="innerTbody"></tbody>
+            </table>`;
+    }
+
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td class="course-name-field">${nameInput.value}</td>
+        <td><span class="credit-tag">${parseFloat(creditInput.value).toFixed(2)}</span></td>
+        <td>
+            <input type="number" class="score-input" placeholder="0-100" min="0" max="100" step="0.1" 
+                   oninput="coreCalcEngine()" data-credit="${parseFloat(creditInput.value)}">
+        </td>
+        <td>
+            <button onclick="deleteCourse(this);" class="delete-btn-mobile">
+                删除
+            </button>
+        </td>
+    `;
+    
+    document.getElementById('innerTbody').appendChild(newRow);
+    
+    nameInput.value = '';
+    creditInput.value = '';
+    
+    // 更新课程计数
+    updateCourseCount();
+}
+
+    const courseTemplates = {
+        "ds_2025_1": [
+            { name: "人工智能导论", credit: 2.0 },
+            { name: "高等数学(上)", credit: 5.0 },
+            { name: "国家安全教育", credit: 1.0 },
+            { name: "劳动教育", credit: 0.0 },
+            { name: "形势与政策（一）", credit: 0.25 },
+            { name: "大学英语1", credit: 2.0 },
+            { name: "大学体育1", credit: 1.0 },
+            { name: "思想道德与法治", credit: 2.5 },
+            { name: "认识实习", credit: 1.0 },
+            { name: "C语言程序设计", credit: 3.0 },
+            { name: "数据科学导论", credit: 2.0 }
+        ],
+        "ds_2025_2": [
+            { name: "面向对象程序设计", credit: 3.0 },
+            { name: "中国近代史纲要", credit: 2.5 },
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 }
+        ],
+        "tai_2025_2": [
+            { name: "数据结构", credit: 2.0 },
+            { name: "中国近代史纲要", credit: 2.5 },
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 },
+            { name: "面向对象程序设计", credit: 3.0 }
+        ],
+        "vr_2025_2": [
+            { name: "图形图像处理技术基础", credit: 2.0 },
+            { name: "Python程序设计基础", credit: 2.0 },
+            { name: "平面构成", credit: 2.0 },
+            { name: "中国近代史纲要", credit: 2.5 },
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 }
+         ],
+        "ai_2025_2": [
+            { name: "Python程序与设计", credit: 3.0 },
+            { name: "中国近代史纲要", credit: 2.5 },
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 },
+        ],
+        "sg_2025_2": [
+            { name: "管理学", credit: 2.0 },
+            { name: "数据结构", credit: 2.0 },
+            { name: "Python程序设计", credit: 2.0 },
+            { name: "计算机网络", credit: 2.0 },      
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 },
+            { name: "人工智能导论", credit: 2.0 },      
+        ],
+            "wl_2025_2": [
+            { name: "离散数学", credit: 3.0 },
+            { name: "电路与模拟电子技术", credit: 4.0 },
+            { name: "软硬件交互设计", credit: 2.0 },
+            { name: "工程制图", credit: 2.0 }, 
+            { name: "计算机网络", credit: 2.0 },      
+            { name: "军事理论", credit: 2.0 },
+            { name: "心理健康教育", credit: 2.0 },
+            { name: "大学体育2", credit: 2.0 },
+            { name: "大学英语2", credit: 2.0 },
+            { name: "形势与政策（二）", credit: 0.5 },
+            { name: "大学生职业生涯发展与规划", credit: 1.0 },
+            { name: "经济思维", credit: 1.0 },
+            { name: "大学物理", credit: 2.0 },
+            { name: "高等数学(下)", credit: 5.0 },  
+        ],
+    };
+
+    function handleConfigChange() {
+        const container = document.getElementById('tableContainer');
+        if (!container.querySelector('.empty-state')) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div>配置已变更，请重新加载课程。</div>
+                </div>`;
+            resetStatsDashboard();
+        }
+    }
+
+function loadTemplateEngine() {
+    const major = document.getElementById('majorSelect').value;
+    const semester = document.getElementById('semesterSelect').value;
+
+    if (!major || !semester) {
+        alert('请先选择修读专业和目标学期！');
+        return;
+    }
+
+    const token = `${major}_${semester}`;
+    const dataset = courseTemplates[token];
+
+    if (!dataset) {
+        alert('该专业或学期暂无预设课程数据（Token: ' + token + '）。');
+        return;
+    }
+
+    const container = document.getElementById('tableContainer');
+    // 确保创建表格的同时包含“操作”列
+    let htmlBuffer = `
+        <table>
+            <thead>
+                <tr>
+                    <th>课程名称</th>
+                    <th>学分</th>
+                    <th>最终成绩</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="innerTbody">
+    `;
+
+    dataset.forEach((item) => {
+        htmlBuffer += `
+            <tr>
+                <td class="course-name-field">${item.name}</td>
+                <td><span class="credit-tag">${item.credit.toFixed(2)}</span></td>
+                <td>
+                    <input type="number" class="score-input" placeholder="0-100" min="0" max="100" step="0.1" 
+                           oninput="coreCalcEngine()" data-credit="${item.credit}">
+                </td>
+                <td>
+                    <button onclick="deleteCourse(this);" class="delete-btn-mobile">
+                        删除
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    htmlBuffer += `</tbody></table>`;
+    container.innerHTML = htmlBuffer;
+
+    document.getElementById('boardCount').innerText = `总修读课程数：${dataset.length} 门`;
+    resetStatsDashboard();
+    
+    const firstInput = container.querySelector('.score-input');
+    if (firstInput) firstInput.focus();
+}
+
+    function resetStatsDashboard() {
+        document.getElementById('boardGPA').innerText = '0';
+        document.getElementById('boardAvg').innerText = '0';
+        document.getElementById('boardCredits').innerText = '0';
+        document.getElementById('boardCount').innerText = '总修读课程数：0 门';
+    }
+
+    // 新增的课程计数更新函数
+    function updateCourseCount() {
+        const tbody = document.getElementById('innerTbody');
+        if (tbody) {
+            const rowCount = tbody.querySelectorAll('tr').length;
+            document.getElementById('boardCount').innerText = `总修读课程数：${rowCount} 门`;
+        } else {
+            // 如果没有tbody，检查整个表格
+            const table = document.getElementById('tableContainer').querySelector('table');
+            if (table) {
+                const rows = table.querySelectorAll('tbody tr').length;
+                document.getElementById('boardCount').innerText = `总修读课程数：${rows} 门`;
+            } else {
+                document.getElementById('boardCount').innerText = '总修读课程数：0 门';
+            }
+        }
+    }
+
+    function parseScoreToGPA(score) {
+        if (score >= 90) return 4.0;
+        if (score >= 85) return 3.7;
+        if (score >= 82) return 3.3;
+        if (score >= 78) return 3.0;
+        if (score >= 75) return 2.7;
+        if (score >= 71) return 2.3;
+        if (score >= 67) return 2.0;
+        if (score >= 63) return 1.5;
+        if (score >= 60) return 1.0;
+        return 0.0;
+    }
+
+    function coreCalcEngine() {
+        const inputs = document.querySelectorAll('.score-input');
+        let totalCredits = 0;
+        let weightedScoreSum = 0;
+        let weightedGPASum = 0;
+        let activeCourseCount = 0;
+
+        inputs.forEach(input => {
+            const credit = parseFloat(input.getAttribute('data-credit'));
+            const score = parseFloat(input.value);
+
+            if (!isNaN(score) && score >= 0 && score <= 100) {
+                activeCourseCount++;
+                if (credit > 0) {
+                    totalCredits += credit;
+                    weightedScoreSum += (score * credit);
+                    weightedGPASum += (parseScoreToGPA(score) * credit);
+                }
+            }
+        });
+
+        if (activeCourseCount > 0 && totalCredits > 0) {
+            document.getElementById('boardCredits').innerText = totalCredits.toFixed(2);
+            document.getElementById('boardAvg').innerText = (weightedScoreSum / totalCredits).toFixed(2);
+            document.getElementById('boardGPA').innerText = (weightedGPASum / totalCredits).toFixed(2);
+        } else {
+            resetStatsDashboard();
+        }
+        
+        // 更新课程计数
+        updateCourseCount();
+    }
+</script>gn: center;
         }
 
         .empty-icon {
@@ -989,6 +1293,17 @@ select:focus {
         }
     }
 
+  function deleteCourse(button) {
+        // 更精确地找到当前行
+        const row = button.closest('tr');
+        if (row) {
+            // 确保只删除这一行
+            row.remove();
+            updateCourseCount();
+            coreCalcEngine();
+        }
+    }
+
     function manualAddCourse() {
     const nameInput = document.getElementById('newCourseName');
     const creditInput = document.getElementById('newCourseCredit');
@@ -1017,8 +1332,7 @@ select:focus {
                    oninput="coreCalcEngine()" data-credit="${parseFloat(creditInput.value)}">
         </td>
         <td>
-            <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
-                    style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
+            <button onclick="deleteCourse(this);" class="delete-btn-mobile">
                 删除
             </button>
         </td>
@@ -1192,8 +1506,7 @@ function loadTemplateEngine() {
                            oninput="coreCalcEngine()" data-credit="${item.credit}">
                 </td>
                 <td>
-                    <button onclick="this.parentElement.parentElement.parentElement.remove(); updateCourseCount(); coreCalcEngine();" 
-                            style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;">
+                    <button onclick="deleteCourse(this);" class="delete-btn-mobile">
                         删除
                     </button>
                 </td>
